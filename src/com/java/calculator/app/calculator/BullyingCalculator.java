@@ -82,7 +82,7 @@ public class BullyingCalculator {
         return stack.pop();
     }
 
-    public static int getPriority(char symbol) {
+    private static int getPriority(char symbol) {
         if (symbol == '^') {
             return 4;
         } else if (symbol == '*' || symbol == '/' || symbol == '%') {
