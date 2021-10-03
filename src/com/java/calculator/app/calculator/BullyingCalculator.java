@@ -2,17 +2,21 @@ package com.java.calculator.app.calculator;
 
 import java.util.Stack;
 
-import static java.lang.Math.*;
+import static java.lang.Math.pow;
 
 public class BullyingCalculator {
 
-    public static String expressionToRPN(String userString) {
+    public String expressionToRPN(String userString) {
         StringBuilder current = new StringBuilder();
         Stack<Character> stack = new Stack<>();
         for (int i = 0; i < userString.length(); i++) {
             int priority = getPriority(userString.charAt(i));
-            if (priority == 0) current.append(userString.charAt(i));
-            if (priority == 1) stack.push(userString.charAt(i));
+            if (priority == 0) {
+                current.append(userString.charAt(i));
+            }
+            if (priority == 1) {
+                stack.push(userString.charAt(i));
+            }
             if (priority > 1) {
                 current.append(" ");
                 while (!stack.empty()) {
@@ -34,14 +38,13 @@ public class BullyingCalculator {
         return current.toString();
     }
 
-    public static double getAnswerFromRPN(String rpn) {
+    public double getAnswerFromRPN(String rpn) {
         StringBuilder function = new StringBuilder(new String());
         Stack<Double> stack = new Stack<>();
         for (int i = 0; i < rpn.length(); i++) {
             if (rpn.charAt(i) == ' ') {
                 continue;
             }
-
             if (getPriority(rpn.charAt(i)) == 0) {
                 while (rpn.charAt(i) != ' ' && getPriority(rpn.charAt(i)) == 0) {
                     function.append(rpn.charAt(i++));
@@ -52,37 +55,39 @@ public class BullyingCalculator {
                 stack.push(Double.parseDouble(function.toString()));
                 function = new StringBuilder(new String());
             }
-
             if (getPriority(rpn.charAt(i)) > 1) {
-                double number1 = stack.pop();
-                double number2 = stack.pop();
-
-                switch (rpn.charAt(i)) {
-                    case '+':
-                        stack.push(number2 + number1);
-                        break;
-                    case '-':
-                        stack.push(number2 - number1);
-                        break;
-                    case '*':
-                        stack.push(number2 * number1);
-                        break;
-                    case '/':
-                        stack.push(number2 / number1);
-                        break;
-                    case '%':
-                        stack.push(number2 * number1 / 100);
-                        break;
-                    case '^':
-                        stack.push(pow(number2,number1));
-                        break;
-                }
+                executeFunction(rpn.charAt(i), stack);
             }
         }
         return stack.pop();
     }
 
-    private static int getPriority(char symbol) {
+    private void executeFunction(char symbol, Stack<Double> stack) {
+        double number1 = stack.pop();
+        double number2 = stack.pop();
+        switch (symbol) {
+            case '+':
+                stack.push(number2 + number1);
+                break;
+            case '-':
+                stack.push(number2 - number1);
+                break;
+            case '*':
+                stack.push(number2 * number1);
+                break;
+            case '/':
+                stack.push(number2 / number1);
+                break;
+            case '%':
+                stack.push(number2 * number1 / 100);
+                break;
+            case '^':
+                stack.push(pow(number2, number1));
+                break;
+        }
+    }
+
+    private int getPriority(char symbol) {
         if (symbol == '^') {
             return 4;
         } else if (symbol == '*' || symbol == '/' || symbol == '%') {
