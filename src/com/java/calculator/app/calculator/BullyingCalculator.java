@@ -6,27 +6,37 @@ import static java.lang.Math.pow;
 
 public class BullyingCalculator {
 
+    private static final int ZERO_PRIORITY = 0;
+    private static final int FIRST_PRIORITY = 1;
+    private static final int MINUS_FIRST_PRIORITY = -1;
+    private static final int SECOND_PRIORITY = 2;
+    private static final int THIRD_PRIORITY = 3;
+    private static final String SPACE = " ";
+    
     public String expressionToRPN(String userString) {
         StringBuilder current = new StringBuilder();
-        Stack<Character> stack = new Stack<>();
+        final Stack<Character> stack = new Stack<>();
         for (int i = 0; i < userString.length(); i++) {
             int priority = getPriority(userString.charAt(i));
-            if (priority == 0) {
+            if (priority == ZERO_PRIORITY) {
                 current.append(userString.charAt(i));
             }
-            if (priority == 1) {
+            if (priority == FIRST_PRIORITY) {
                 stack.push(userString.charAt(i));
             }
-            if (priority > 1) {
-                current.append(" ");
+            if (priority > FIRST_PRIORITY) {
+                current.append(SPACE);
                 while (!stack.empty()) {
-                    if (getPriority(stack.peek()) >= priority) current.append(stack.pop());
-                    else break;
+                    if (getPriority(stack.peek()) >= priority) {
+                        current.append(stack.pop());
+                    } else {
+                        break;
+                    }
                 }
                 stack.push(userString.charAt(i));
             }
-            if (priority == -1) {
-                while (getPriority(stack.peek()) != 1) {
+            if (priority == MINUS_FIRST_PRIORITY) {
+                while (getPriority(stack.peek()) != FIRST_PRIORITY) {
                     current.append(stack.pop());
                 }
                 stack.pop();
@@ -38,31 +48,31 @@ public class BullyingCalculator {
         return current.toString();
     }
 
-    public double getAnswerFromRPN(String rpn) {
-        StringBuilder function = new StringBuilder(new String());
-        Stack<Double> stack = new Stack<>();
+    public double findAnswerFromRPN(String rpn) {
+        StringBuilder function = new StringBuilder();
+        final Stack<Double> stack = new Stack<>();
         for (int i = 0; i < rpn.length(); i++) {
             if (rpn.charAt(i) == ' ') {
                 continue;
             }
-            if (getPriority(rpn.charAt(i)) == 0) {
-                while (rpn.charAt(i) != ' ' && getPriority(rpn.charAt(i)) == 0) {
+            if (getPriority(rpn.charAt(i)) == ZERO_PRIORITY) {
+                while (rpn.charAt(i) != ' ' && getPriority(rpn.charAt(i)) == ZERO_PRIORITY) {
                     function.append(rpn.charAt(i++));
                     if (i == rpn.length()) {
                         break;
                     }
                 }
                 stack.push(Double.parseDouble(function.toString()));
-                function = new StringBuilder(new String());
+                function = new StringBuilder();
             }
-            if (getPriority(rpn.charAt(i)) > 1) {
+            if (getPriority(rpn.charAt(i)) > FIRST_PRIORITY) {
                 executeFunction(rpn.charAt(i), stack);
             }
         }
         return stack.pop();
     }
 
-    private void executeFunction(char symbol, Stack<Double> stack) {
+    private void executeFunction(char symbol, final Stack<Double> stack) {
         double number1 = stack.pop();
         double number2 = stack.pop();
         switch (symbol) {
@@ -91,13 +101,13 @@ public class BullyingCalculator {
         if (symbol == '^') {
             return 4;
         } else if (symbol == '*' || symbol == '/' || symbol == '%') {
-            return 3;
+            return THIRD_PRIORITY;
         } else if (symbol == '+' || symbol == '-') {
-            return 2;
+            return SECOND_PRIORITY;
         } else if (symbol == '(') {
-            return 1;
+            return ZERO_PRIORITY;
         } else if (symbol == ')') {
-            return -1;
+            return MINUS_FIRST_PRIORITY ;
         } else return 0;
     }
 }
